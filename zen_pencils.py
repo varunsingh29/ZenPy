@@ -27,7 +27,7 @@ def crawl_archive():
     ''' Crawls all URL's from the Archive section and maintains a dictionary '''
 
     print("Fetching list of lastest comics for you...")
-    print("This can take some time... Grab a snickers!!")
+    print("This can take some time... Grab a Snickers!!")
     base_url = "https://zenpencils.com/archives/"
     result_set = {}
 
@@ -93,9 +93,9 @@ def option_1():
     os.mkdir("ZenPencils")
 
     count = 1
-    for k,v in names_tags:
+    for k,v in names_tags.items():
         download_file(k,v,path)
-        print("Done #%d of %d" %(count,total_comics) + "\r")  # Progress Bar
+        print("Done #%d of %d" %(count,total_comics) + "\r",end="")  # Progress Bar
         count +=1
 
 def option_2():
@@ -128,7 +128,7 @@ def option_2():
             missing_count = len(missing)
             for k,v in missing.items():
                 download_file(k,v,path)
-                print("Done #%d of %d" %(count,missing_count) + "\r")  # Progress Bar
+                print("Done #%d of %d" %(count,missing_count) + "\r",end="")  # Progress Bar
                 count += 1
 
     else:
@@ -137,8 +137,18 @@ def option_2():
 
 def option_3():
 
-    comic_num = input("Enter comic number: ")
-    path = os.getcwd()+"/ZenPencils/"
+    try:
+        comic_num = int(input("Enter comic number: "))
+        if comic_num > total_comics:
+            print("No such comic exists")
+            return
+    except ValueError:
+        print("Not a valid comic number !!")
+        return
+
+    path = input("Enter path to Local Collection: ")
+    path += "/"
+    # print(path)
     url = crawled[int(comic_num)]
     r = fetch(url)
     soup = BeautifulSoup(r.content, "lxml")
@@ -152,6 +162,7 @@ def option_3():
         filename = post_title.string
     download_file(filename, img, path)
 
+
 if __name__ == "__main__":
 
     prompt = "1) Download all Zen Pencil comics \n2) Download all comics missing from local collection\
@@ -164,21 +175,18 @@ if __name__ == "__main__":
     total_comics = len(master)
     fetch_img_tags(master)
 
-    while(True):
+    flag = True
+    while(flag):
         print(prompt)
         choice = int(input("Enter choice: "))
         if choice == 1:
             option_1()
-            exit()
         elif choice == 2:
             option_2()
-            exit()
         elif choice == 3:
             option_3()
-            exit()
         elif choice == 4:
+            flag = False
             break
         else:
             print("Incorrect choice")
-
-
